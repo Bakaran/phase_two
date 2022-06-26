@@ -5,6 +5,48 @@ int car_number = -1;
 int Size_Of_parking = 4;
 QVector <int> qv;
 using namespace std;
+bool promising(bool visited[16],QMap<int , pair<int,int>> cars,int camera,pair<int,int> m,QChar p)
+{
+    if (m.first <= 0 || m.first > (Size_Of_parking*Size_Of_parking))
+    {
+        car_number = -1;
+        return false;
+    }
+    if (m.second <= 0 || m.second > (Size_Of_parking*Size_Of_parking))
+    {
+        car_number = -1;
+        return false;
+    }
+    if (m.first == camera || m.second == camera)
+    {
+        car_number = -1;
+        return false;
+    }
+    int next_empty;
+    if (p == 'N')
+    {
+        next_empty = m.second;
+    }
+    if (p == 'B')
+    {
+        next_empty = m.first;
+    }
+    if (visited[next_empty - 1] == true)
+    {
+        car_number = -1;
+        return false;
+    }
+    for (auto ii = cars.begin(); ii != cars.end(); ii++)
+    {
+        if (ii.value() == m)
+        {
+            car_number = ii.key();
+            return true;
+        }
+    }
+    car_number = -1;
+    return false;
+}
 void backtracking(QMap<int , pair<int,int>> cars,bool visited[16],int camera,int curr,int want,QVector<int> v)
 {
     if (want == curr)
