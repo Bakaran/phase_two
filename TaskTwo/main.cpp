@@ -2,6 +2,38 @@
 #include <QMap>
 #include <QString>
 using namespace std;
+void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
+{
+    int order = 0;
+    while(order != 3)
+    {
+        cout <<"1.shrtst_path"<<endl;
+        cout <<"2.shrtst_cycle"<<endl;
+        cout <<"3.exit"<<endl;
+        cout <<"--------------"<<endl;
+        cout <<"order : ";
+        int start,dst;
+        int n;
+        cin >> order;
+        switch (order)
+        {
+        case 1:
+            cin >> start >> dst;
+           // shrtst_path(graph,loc,start,dst);
+        break;
+        case 2:
+            cout << "size,start : ";
+            cin >> n >> start;
+            int *states = new int[n];
+            for (int i = 0 ; i < n ; i++)
+            {
+                cin >> states[i];
+            }
+          //  shrtst_cycle(graph,loc,states,n,start);
+        break;
+        }
+    }
+}
 int main(void)
 {
     QMap <int,QString> loc;
@@ -39,5 +71,5 @@ int main(void)
     graph.insert({3,6},9);
     graph.insert({6,7},4);
     graph.insert({7,8},1);
-    //choose_opt(loc,graph);
+    choose_opt(loc,graph);
 }
