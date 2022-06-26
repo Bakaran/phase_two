@@ -51,10 +51,23 @@ void backtracking(QMap<int , pair<int,int>> cars,bool visited[16],int camera,int
 {
     if (want == curr)
     {
-        qv.clear();
-        for (auto ii = v.begin(); ii != v.end(); ii++)
+        if (qv.size() != 0)
         {
-            qv.push_back(*ii);
+            if (v.size() < qv.size())
+            {
+                qv.clear();
+                for (auto ii = v.begin(); ii != v.end(); ii++)
+                {
+                    qv.push_back(*ii);
+                }
+            }
+        }
+        else
+        {
+            for (auto ii = v.begin(); ii != v.end(); ii++)
+            {
+                qv.push_back(*ii);
+            }
         }
         return;
     }
