@@ -15,8 +15,20 @@ bool promising(QMap <pair<int,int>,int> graph,QVector<int> path,int next,int cur
             return false;
         }
     }
-    if (graph.contains({curr,next}) == true || graph.contains({next,curr}) == true)
+    if (graph.contains({curr,next}) == true)
     {
+        if (min_cost < cost + graph[{curr,next}])
+        {
+            return false;
+        }
+        return true;
+    }
+    else if (graph.contains({next,curr}) == true)
+    {
+        if (min_cost < cost + graph[{next,curr}])
+        {
+            return false;
+        }
         return true;
     }
     return false;
