@@ -4,103 +4,68 @@
 using namespace std;
 int INF = 9999;
 QVector <int> qv;
-int find_min(int dist[10],bool touch[10])
+QVector <int> min_path;
+int min_cost = 9999;
+bool promising(QMap <pair<int,int>,int> graph,QVector<int> path,int next,int curr,int cost)
 {
-    int min = INF,index = -1;
-    for (int i = 0; i < 10 ; i++)
+    for (auto ii = path.begin(); ii != path.end(); ii++)
     {
-        if (touch[i] == false)
+        if (*ii == next)
         {
-            if (dist[i] != INF && dist[i] >= 0 && dist[i] < min)
-            {
-                min = dist[i];
-                index = i;
-            }
+            return false;
         }
     }
-    return index;
+    if (graph.contains({curr,next}) == true || graph.contains({next,curr}) == true)
+    {
+        return true;
+    }
+    return false;
 }
-void find_path(QMap <int,QVector<int>> &path,int start,int end)
+void shrtst_path(QMap <pair<int,int>,int> graph,QMap<int,QString> loc,QVector<int> path,int cost,int curr,int dst)
 {
-    path[end].clear();
-    for (auto ii = path[start].begin() ; ii != path[start].end(); ii++)
+    if (curr == dst)
     {
-        path[end].push_back(*ii);
-    }
-    path[end].push_back(end);
-    return;
-}
-void shrtst_path(QMap <pair<int,int>,int> graph,QMap<int,QString> loc,int start,int dst)
-{
-    bool touch[10];
-    int dist[10];
-    QMap <int,QVector<int>> path;
-    for (int i = 0; i < 10; i++)
-    {
-        if (i != start)
+        if (min_cost > cost)
         {
-            QVector<int> v;
-            v.push_back(start);
-            v.push_back(i);
-            path.insert(i,v);
-        }
-        dist[i] = INF;
-        touch[i] = false;
-    }
-    touch[start] = true;
-    dist[start] = 0;
-    for (int i = 0; i < 10; i++)
-    {
-        if (graph.contains({i,start}) == true)
-        {
-            dist[i] = graph[{i,start}];
-        }
-        else if (graph.contains({start,i}) == true)
-        {
-            dist[i] = graph[{start,i}];
-        }
-    }
-    for (int i = 0; i < 9; i++)
-    {
-        int index = -1;
-        index = find_min(dist,touch);
-        touch[index] = true;
-        for (int i = 0 ; i < 10; i++)
-        {
-            if (touch[i] == false)
+            if (min_path.size() != 0)
             {
-                if (dist[index] != INF)
-                {
-                    if (graph.contains({index,i}))
-                    {
-                        if (dist[i] > dist[index] + graph[{index,i}])
-                        {
-                            dist[i] = dist[index] + graph[{index,i}];
-                            find_path(path,index,i);
-                        }
-                    }
-                    else if (graph.contains({i,index}))
-                    {
-                        if (dist[i] > dist[index] + graph[{i,index}])
-                        {
-                            dist[i] = dist[index] + graph[{i,index}];
-                            find_path(path,index,i);
-                        }
-                    }
-                }
+                min_path.clear();
             }
+            for (auto ii = path.begin(); ii != path.end(); ii++)
+            {
+                min_path.push_back(*ii);
+            }
+            min_path.push_back(-1);
+            min_cost = cost;
+            return;
         }
-    }
-    cout << dist[dst] << endl;
-    for (auto ii = path[dst].begin(); ii != path[dst].end(); ii++)
-    {
-        cout << loc[*ii].toStdString();
-        if (ii != path[dst].end() - 1)
+        else if (min_cost == cost)
         {
-            cout << "->";
+
+            for (auto ii = path.begin(); ii != path.end(); ii++)
+            {
+                min_path.push_back(*ii);
+            }
+            min_path.push_back(-1);
+            return;
         }
     }
-    cout << endl;
+    for (auto ii = loc.begin(); ii != loc.end(); ii++)
+    {
+        if (promising(graph,path,ii.key(),curr,cost) == true)
+        {
+            path.push_back(ii.key());
+            if(graph.contains({ii.key(),curr}) == true)
+            {
+                shrtst_path(graph,loc,path,(cost + graph[{ii.key(),curr}]),ii.key(),dst);
+            }
+            else if(graph.contains({curr,ii.key()}) == true)
+            {
+                shrtst_path(graph,loc,path,(cost + graph[{curr,ii.key()}]),ii.key(),dst);
+            }
+            path.pop_back();
+        }
+    }
 }
 void tsp(QMap <pair<int,int>,int> graph,bool *visited,int *states,int current,int size,int count,int cost,int &answer,int start,QVector<int> V)
 {
@@ -192,13 +157,38 @@ void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
         int start,dst;
         int n;
         cin >> order;
-        switch (order)
+        if (order == 1)
         {
-        case 1:
+            int cnt = 1;
             cin >> start >> dst;
-            shrtst_path(graph,loc,start,dst);
-        break;
-        case 2:
+            QVector <int> path;
+            path.push_back(start);
+            shrtst_path(graph,loc,path,0,start,dst);
+            cout <<"min cost is : "<< min_cost << endl;
+            cout << cnt <<".";
+            for (auto ii = min_path.begin(); ii != min_path.end(); ii++)
+            {
+                if (*ii == -1)
+                {
+                    cout << endl;
+                    if (ii != min_path.end()-1)
+                    {
+                        cnt++;
+                        cout << cnt << ".";
+                    }
+                }
+                else
+                {
+                    cout << loc[*ii].toStdString();
+                    if (*(ii + 1) != -1)
+                    {
+                        cout << "->";
+                    }
+                }
+            }
+        }
+        else if (order == 2)
+        {
             cout << "size,start : ";
             cin >> n >> start;
             int *states = new int[n];
@@ -207,7 +197,6 @@ void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
                 cin >> states[i];
             }
             shrtst_cycle(graph,loc,states,n,start);
-        break;
         }
     }
 }
@@ -248,5 +237,6 @@ int main(void)
     graph.insert({3,6},9);
     graph.insert({6,7},4);
     graph.insert({7,8},1);
+    graph.insert({8,9},3);
     choose_opt(loc,graph);
 }
