@@ -9,6 +9,8 @@ CONFIG -= app_bundle
 
 SOURCES += \
         main.cpp \
+        shortestcycle.cpp \
+        shortestpath.cpp \
         taskthree.cpp
 
 # Default rules for deployment.
@@ -17,4 +19,6 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
 HEADERS += \
+    shortestcycle.h \
+    shortestpath.h \
     taskthree.h
