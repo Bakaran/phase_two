@@ -2,6 +2,105 @@
 #include <QMap>
 #include <QString>
 using namespace std;
+int INF = 9999;
+int find_min(int dist[10],bool touch[10])
+{
+    int min = INF,index = -1;
+    for (int i = 0; i < 10 ; i++)
+    {
+        if (touch[i] == false)
+        {
+            if (dist[i] != INF && dist[i] >= 0 && dist[i] < min)
+            {
+                min = dist[i];
+                index = i;
+            }
+        }
+    }
+    return index;
+}
+void find_path(QMap <int,QVector<int>> &path,int start,int end)
+{
+    path[end].clear();
+    for (auto ii = path[start].begin() ; ii != path[start].end(); ii++)
+    {
+        path[end].push_back(*ii);
+    }
+    path[end].push_back(end);
+    return;
+}
+void shrtst_path(QMap <pair<int,int>,int> graph,QMap<int,QString> loc,int start,int dst)
+{
+    bool touch[10];
+    int dist[10];
+    QMap <int,QVector<int>> path;
+    for (int i = 0; i < 10; i++)
+    {
+        if (i != start)
+        {
+            QVector<int> v;
+            v.push_back(start);
+            v.push_back(i);
+            path.insert(i,v);
+        }
+        dist[i] = INF;
+        touch[i] = false;
+    }
+    touch[start] = true;
+    dist[start] = 0;
+    for (int i = 0; i < 10; i++)
+    {
+        if (graph.contains({i,start}) == true)
+        {
+            dist[i] = graph[{i,start}];
+        }
+        else if (graph.contains({start,i}) == true)
+        {
+            dist[i] = graph[{start,i}];
+        }
+    }
+    for (int i = 0; i < 9; i++)
+    {
+        int index = -1;
+        index = find_min(dist,touch);
+        touch[index] = true;
+        for (int i = 0 ; i < 10; i++)
+        {
+            if (touch[i] == false)
+            {
+                if (dist[index] != INF)
+                {
+                    if (graph.contains({index,i}))
+                    {
+                        if (dist[i] > dist[index] + graph[{index,i}])
+                        {
+                            dist[i] = dist[index] + graph[{index,i}];
+                            find_path(path,index,i);
+                        }
+                    }
+                    else if (graph.contains({i,index}))
+                    {
+                        if (dist[i] > dist[index] + graph[{i,index}])
+                        {
+                            dist[i] = dist[index] + graph[{i,index}];
+                            find_path(path,index,i);
+                        }
+                    }
+                }
+            }
+        }
+    }
+    cout << dist[dst] << endl;
+    for (auto ii = path[dst].begin(); ii != path[dst].end(); ii++)
+    {
+        cout << loc[*ii].toStdString();
+        if (ii != path[dst].end() - 1)
+        {
+            cout << "->";
+        }
+    }
+    cout << endl;
+}
 void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
 {
     int order = 0;
@@ -19,7 +118,7 @@ void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
         {
         case 1:
             cin >> start >> dst;
-           // shrtst_path(graph,loc,start,dst);
+           shrtst_path(graph,loc,start,dst);
         break;
         case 2:
             cout << "size,start : ";
