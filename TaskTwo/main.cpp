@@ -3,6 +3,7 @@
 #include <QString>
 using namespace std;
 int INF = 9999;
+QVector <int> qv;
 int find_min(int dist[10],bool touch[10])
 {
     int min = INF,index = -1;
@@ -101,6 +102,83 @@ void shrtst_path(QMap <pair<int,int>,int> graph,QMap<int,QString> loc,int start,
     }
     cout << endl;
 }
+void tsp(QMap <pair<int,int>,int> graph,bool *visited,int *states,int current,int size,int count,int cost,int &answer,int start,QVector<int> V)
+{
+    if (count == size)
+    {
+        if (graph.contains({current,start}))
+        {
+            if (answer > (cost + graph[{current,start}]))
+            {
+                answer = cost + graph[{current,start}];
+                qv.clear();
+                for (auto ii = V.begin(); ii != V.end(); ii++)
+                {
+                    qv.push_back(*ii);
+                }
+            }
+        }
+        else if (graph.contains({start,current}))
+        {
+            if (answer > (cost + graph[{start,current}]))
+            {
+                answer = cost + graph[{start,current}];
+                qv.clear();
+                for (auto ii = V.begin(); ii != V.end(); ii++)
+                {
+                    qv.push_back(*ii);
+                }
+            }
+        }
+    }
+    for (int i = 0; i < size; i++)
+    {
+        if (!visited[states[i]])
+        {
+            if (graph.contains({states[i],current}))
+            {
+                visited[states[i]] = true;
+                V.push_back(states[i]);
+                tsp(graph,visited,states,states[i],size,count + 1,cost + graph[{states[i],current}],answer,start,V);
+                visited[states[i]] = false;
+            }
+            else if (graph.contains({current,states[i]}))
+            {
+                visited[states[i]] = true;
+                V.push_back(states[i]);
+                tsp(graph,visited,states,states[i],size,count + 1,cost + graph[{current,states[i]}],answer,start,V);
+                visited[states[i]] = false;
+            }
+        }
+    }
+}
+void shrtst_cycle(QMap <pair<int,int>,int> graph,QMap <int,QString> loc,int *states,int size,int start)
+{
+    int answer = INF;
+    bool *visited = new bool[loc.size()];
+    for (int i = 0; i < loc.size(); i++)
+    {
+        visited[i] = true;
+    }
+    for (int i = 0; i < size; i++)
+    {
+        visited[states[i]] = false;
+    }
+    QVector<int> V;
+    V.push_back(start);
+    tsp(graph,visited,states,start,size,0,0,answer,start,V);
+    qv.push_back(start);
+    cout << answer << endl;
+    for (auto ii = qv.begin(); ii != qv.end(); ii++)
+    {
+        cout << loc[*ii].toStdString();
+        if (ii != qv.end() - 1)
+        {
+            cout <<"->";
+        }
+    }
+    cout << endl;
+}
 void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
 {
     int order = 0;
@@ -118,7 +196,7 @@ void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
         {
         case 1:
             cin >> start >> dst;
-           shrtst_path(graph,loc,start,dst);
+            shrtst_path(graph,loc,start,dst);
         break;
         case 2:
             cout << "size,start : ";
@@ -128,7 +206,7 @@ void choose_opt(QMap <int,QString> loc,QMap <pair<int,int>,int> graph)
             {
                 cin >> states[i];
             }
-          //  shrtst_cycle(graph,loc,states,n,start);
+            shrtst_cycle(graph,loc,states,n,start);
         break;
         }
     }
