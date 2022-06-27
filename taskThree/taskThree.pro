@@ -11,6 +11,7 @@ SOURCES += \
         main.cpp \
         shortestcycle.cpp \
         shortestpath.cpp \
+        taskone.cpp \
         taskthree.cpp
 
 # Default rules for deployment.
@@ -21,4 +22,5 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 HEADERS += \
     shortestcycle.h \
     shortestpath.h \
+    taskone.h \
     taskthree.h
