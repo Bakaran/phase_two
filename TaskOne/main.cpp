@@ -2,180 +2,102 @@
 #include <QMap>
 #include <QStringList>
 using namespace std;
-int car_number = -1;
-int Size_Of_parking = 4;
-QVector <int> qv;
-class Parking
+QVector <int> p;
+int car_numb = 0;
+bool promising(QMap <int,pair<int,int>> car,pair<int,int> m,int cam,int pre_empty,QChar p)
 {
-public:
-    int *arr = new int[Size_Of_parking*Size_Of_parking];
-};
-
-using namespace std;
-bool promising(Parking AR,bool visited[16],QMap<int , pair<int,int>> cars,int camera,pair<int,int> m,QChar p,QStringList sl)
-{
-    if (m.first <= 0 || m.first > (Size_Of_parking*Size_Of_parking))
+    if (m.first == cam || m.second == cam)
     {
-        car_number = -1;
         return false;
     }
-    if (m.second <= 0 || m.second > (Size_Of_parking*Size_Of_parking))
-    {
-        car_number = -1;
-        return false;
-    }
-    if (m.first == camera || m.second == camera)
-    {
-        car_number = -1;
-        return false;
-    }
-    int next_empty;
     if (p == 'N')
     {
-        next_empty = m.second;
-    }
-    if (p == 'B')
-    {
-        next_empty = m.first;
-    }
-    if (visited[next_empty - 1] == true)
-    {
-        QString s;
-        for (int i = 0 ; i < Size_Of_parking*Size_Of_parking; i++)
+        int empty = m.second;
+        if (empty == pre_empty)
         {
-            if (AR.arr[i] != -1)
-            {
-                s.push_back(char(AR.arr[i]));
-            }
-            else
-            {
-                s.push_back('C');
-            }
-        }
-        for (auto jj = sl.begin(); jj != sl.end(); jj++)
-        {
-            if (s == *jj)
-            {
-                car_number = -1;
-                return false;
-            }
+            return false;
         }
     }
-    for (auto ii = cars.begin(); ii != cars.end(); ii++)
+    else
     {
-        if (ii.value() == m)
+        int empty = m.first;
+        if (empty == pre_empty)
         {
-            car_number = ii.key();
+            return false;
+        }
+    }
+    for (auto ii = car.begin(); ii != car.end(); ii++)
+    {
+        if (ii.value().first == m.first && ii.value().second == m.second)
+        {
+            car_numb = ii.key();
             return true;
         }
     }
-    car_number = -1;
     return false;
 }
-void backtracking(Parking AR,QMap<int , pair<int,int>> cars,bool visited[16],int camera,int curr,int want,QVector<int> v,QStringList sl)
+void backtracking(QMap <int,pair<int,int>> car,int row,int col,int curr,int camera,int end,QVector<int> path,int pre_empty)
 {
-    if (want == curr)
+    if ( curr == end )
     {
-        if (qv.size() != 0)
+        for (auto ii = path.begin(); ii != path.end(); ii++)
         {
-            if (v.size() < qv.size())
-            {
-                qv.clear();
-                for (auto ii = v.begin(); ii != v.end(); ii++)
-                {
-                    qv.push_back(*ii);
-                }
-            }
-        }
-        else
-        {
-            for (auto ii = v.begin(); ii != v.end(); ii++)
-            {
-                qv.push_back(*ii);
-            }
+            p.push_back(*ii);
         }
         return;
     }
-    visited[curr - 1] = true;
-    QString s;
-    for (int i = 0; i < Size_Of_parking*Size_Of_parking; i++)
+    if (promising(car,{curr + 1,curr + 2},camera,pre_empty,'N') == true)
     {
-        if (AR.arr[i] != -1)
-        {
-            s.push_back(char(AR.arr[i]));
-        }
-        else
-        {
-            s.push_back('C');
-        }
+        car[car_numb].first = curr;
+        car[car_numb].second = curr + 1;
+        path.push_back(car_numb);
+        backtracking(car,row,col,curr + 2,camera,end,path,curr);
+        path.pop_back();
     }
-    sl.push_back(s);
-    if (promising(AR,visited,cars,camera,{curr+1,curr+2},'N',sl) == true)
+    if (promising(car,{curr - 2,curr - 1},camera,pre_empty,'B') == true)
     {
-        v.push_back(car_number);
-        AR.arr[curr - 1] = car_number;
-        AR.arr[curr + 1] = 0;
-        backtracking(AR,cars,visited,camera,curr+2,want,v,sl);
+        car[car_numb].first = curr - 1;
+        car[car_numb].second = curr;
+        path.push_back(car_numb);
+        backtracking(car,row,col,curr - 2,camera,end,path,curr);
+        path.pop_back();
     }
-    if (promising(AR,visited,cars,camera,{curr-2,curr-1},'B',sl) == true)
+    if (promising(car,{curr + col,curr +(2*col)},camera,pre_empty,'N') == true)
     {
-        v.push_back(car_number);
-        AR.arr[curr - 1] = car_number;
-        AR.arr[curr - 3] = 0;
-        backtracking(AR,cars,visited,camera,curr-2,want,v,sl);
+        car[car_numb].first = curr;
+        car[car_numb].second = curr + col;
+        path.push_back(car_numb);
+        backtracking(car,row,col,curr + (2*col),camera,end,path,curr);
+        path.pop_back();
     }
-    if (promising(AR,visited,cars,camera,{curr+Size_Of_parking,curr+(2*Size_Of_parking)},'N',sl) == true)
+    if (promising(car,{curr - (2*col),curr - col},camera,pre_empty,'B') == true)
     {
-        v.push_back(car_number);
-        AR.arr[curr + (2*Size_Of_parking) - 1] = 0;
-        AR.arr[curr - 1] = car_number;
-        backtracking(AR,cars,visited,camera,curr+(2*Size_Of_parking),want,v,sl);
+        car[car_numb].first = curr - col;
+        car[car_numb].second = curr;
+        path.push_back(car_numb);
+        backtracking(car,row,col,curr - (2*col),camera,end,path,curr);
+        path.pop_back();
     }
-    if (promising(AR,visited,cars,camera,{curr-(2*Size_Of_parking),curr-(Size_Of_parking)},'B',sl) == true)
-    {
-        v.push_back(car_number);
-        AR.arr[curr - (2*Size_Of_parking) - 1] = 0;
-        AR.arr[curr - 1] = car_number;
-        backtracking(AR,cars,visited,camera,curr-(2*Size_Of_parking),want,v,sl);
-    }
-    return;
 }
 int main(void)
 {
-    bool visited[16];
-    for (int i = 0 ; i < 16; i++)
+    int row = 0, col = 0;
+    cin >> row >> col;
+    int number_of_cars = 0;
+    cin >> number_of_cars;
+    QMap<int,pair<int,int>> car;
+    for (int i = 0 ; i < number_of_cars; i++)
     {
-        visited[i] = false;
+        pair <int,int> m;
+        cin >> m.first >> m.second;
+        car.insert(i+1,m);
     }
-    QMap<int , pair<int,int>> cars;
-    Parking AR;
-    cars.insert(1,{1,2});
-    cars.insert(2,{3,4});
-    cars.insert(3,{5,9});
-    cars.insert(4,{6,7});
-    cars.insert(5,{10,11});
-    cars.insert(6,{12,16});
-    cars.insert(7,{13,14});
-    int camera = 8;
-    int start = 15,end = 7;
-    QVector <int> v;
-    QStringList sl;
-    AR.arr[start - 1] = 0;
-    AR.arr[camera] = -1;
-    for (auto ii = cars.begin() ; ii != cars.end(); ii++)
+    int start = 0,camera = 0,end = 0;
+    cin >> start >> camera >> end;
+    QVector <int> path;
+    backtracking(car,row,col,start,camera,end,path,start);
+    for (auto ii = p.begin(); ii != p.end(); ii++)
     {
-        AR.arr[ii.value().first - 1] = ii.key();
-        AR.arr[ii.value().second - 1] = ii.key();
+        cout << *ii << endl;
     }
-    backtracking(AR,cars,visited,camera,start,end,v,sl);
-    for (auto ii = qv.begin(); ii != qv.end(); ii++)
-    {
-        cout << *ii;
-        if (ii != qv.end() - 1)
-        {
-            cout << "->";
-        }
-    }
-    cout <<endl;
-    return 0;
 }
