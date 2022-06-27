@@ -53,6 +53,8 @@ void backtracking(QMap <int,pair<int,int>> car,int row,int col,int curr,int came
         path.push_back(car_numb);
         backtracking(car,row,col,curr + 2,camera,end,path,curr);
         path.pop_back();
+        car[car_numb].first = curr + 1;
+        car[car_numb].second = curr + 2;
     }
     if (promising(car,{curr - 2,curr - 1},camera,pre_empty,'B') == true)
     {
@@ -61,6 +63,8 @@ void backtracking(QMap <int,pair<int,int>> car,int row,int col,int curr,int came
         path.push_back(car_numb);
         backtracking(car,row,col,curr - 2,camera,end,path,curr);
         path.pop_back();
+        car[car_numb].first = curr - 2;
+        car[car_numb].second = curr - 1;
     }
     if (promising(car,{curr + col,curr +(2*col)},camera,pre_empty,'N') == true)
     {
@@ -69,6 +73,8 @@ void backtracking(QMap <int,pair<int,int>> car,int row,int col,int curr,int came
         path.push_back(car_numb);
         backtracking(car,row,col,curr + (2*col),camera,end,path,curr);
         path.pop_back();
+        car[car_numb].first = curr + col;
+        car[car_numb].second = curr + col + col;
     }
     if (promising(car,{curr - (2*col),curr - col},camera,pre_empty,'B') == true)
     {
@@ -77,6 +83,8 @@ void backtracking(QMap <int,pair<int,int>> car,int row,int col,int curr,int came
         path.push_back(car_numb);
         backtracking(car,row,col,curr - (2*col),camera,end,path,curr);
         path.pop_back();
+        car[car_numb].first = curr - col - col;
+        car[car_numb].second = curr - col;
     }
 }
 int main(void)
